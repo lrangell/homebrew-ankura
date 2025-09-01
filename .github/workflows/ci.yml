@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test-formula:
+    name: Test Homebrew Formula
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Test formula syntax
+        run: |
+          brew audit --strict --online Formula/ankura.rb
+
+      - name: Test formula installation (dry run)
+        run: |
+          # Test that the formula can be parsed
+          brew info Formula/ankura.rb
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check formula formatting
+        run: |
+          # Basic checks for Ruby formula
+          if ! grep -q "class Ankura < Formula" Formula/ankura.rb; then
+            echo "Formula class declaration not found"
+            exit 1
+          fi
+          
+          if ! grep -q 'depends_on "pkl"' Formula/ankura.rb; then
+            echo "pkl dependency not found"
+            exit 1
+          fi
+
+      - name: Validate workflow syntax
+        run: |
+          # Check that workflow YAML is valid
+          python -c "import yaml; yaml.safe_load(open('.github/workflows/release.yml'))"
+          python -c "import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))"
