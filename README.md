@@ -7,11 +7,7 @@ Homebrew tap for distributing [Ankura](https://github.com/lrangell/ankura), a ty
 ### Direct Install (No Tapping Required)
 
 ```bash
-# If repo is named 'homebrew-ankura'
 brew install lrangell/ankura
-
-# Or if repo is named 'ankura-homebrew' 
-brew install lrangell/ankura-homebrew/ankura
 ```
 
 **That's it!** Homebrew automatically handles the tap behind the scenes.
