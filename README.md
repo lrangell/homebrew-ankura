@@ -51,28 +51,35 @@ This repository contains:
 
 ### Release Process
 
-**Step 1: Create Release (Main Ankura Repo)**
+**All workflows moved to main ankura repository for cleaner separation of concerns.**
+
+**Step 1: Copy Workflow Files to Main Repo**
 ```bash
-# In the main ankura repository
+# Copy these files to lrangell/ankura/.github/workflows/
+cp main-repo-ci.yml → ci.yml        # Cargo/Pkl tests on every commit
+cp ankura-repo-release.yml → release.yml   # Build binaries on git tags
+```
+
+**Step 2: Create Release (Main Ankura Repo)**
+```bash
+# In the main ankura repository  
 git tag v0.2.1
 git push origin v0.2.1
 ```
 
-This triggers the release workflow in the main repo which:
-1. Runs cargo test and pkl test
-2. Cross-compiles binaries for both architectures  
-3. Creates a GitHub release with binaries and checksums
+This triggers the release workflow which:
+1. ✅ Runs cargo test and pkl test
+2. ✅ Cross-compiles binaries for both architectures
+3. ✅ Creates GitHub release with binaries and checksums
 
-**Step 2: Update Homebrew Formula (This Repo)**
+**Step 3: Update Homebrew Formula (This Repo)**
 1. Go to [Actions → Update Formula](https://github.com/lrangell/homebrew-ankura/actions)
-2. Click "Run workflow" and enter:
-   - Version: `v0.2.1`
-   - x86_64 checksum: `(from release notes)`
-   - ARM64 checksum: `(from release notes)`
-3. The workflow updates the formula and commits changes
+2. Click "Run workflow" and enter the version + checksums from the release notes
+3. Formula gets updated automatically
 
-**Files to Copy to Main Ankura Repo:**
-- Copy `ankura-repo-release.yml` → `lrangell/ankura/.github/workflows/release.yml`
+**Repository Responsibilities:**
+- **Main Repo**: Code testing, building, releasing binaries
+- **Homebrew Repo**: Formula validation, dependency management
 
 ### Manual Build
 

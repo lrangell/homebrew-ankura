@@ -1,4 +1,4 @@
-# This file should be placed in the main ankura repo at: .github/workflows/release.yml
+# Copy this file to: lrangell/ankura/.github/workflows/release.yml
 
 name: Release
 

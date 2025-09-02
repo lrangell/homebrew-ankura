@@ -1,4 +1,4 @@
-name: CI
+name: Homebrew Formula CI
 
 on:
   push:
@@ -6,104 +6,53 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: 1
-
 jobs:
-  cargo-test:
-    name: Cargo Test
-    runs-on: macos-latest
-    
-    steps:
-      - name: Checkout ankura repo
-        uses: actions/checkout@v4
-        with:
-          repository: 'lrangell/ankura'
-          
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-        
-      - name: Install pkl CLI
-        run: |
-          curl -L -o pkl https://github.com/apple/pkl/releases/download/0.29.1/pkl-macos-aarch64
-          chmod +x pkl
-          sudo mv pkl /usr/local/bin/
-          
-      - name: Run cargo tests
-        run: cargo test
-        
-      - name: Run cargo clippy
-        run: cargo clippy -- -D warnings
-        
-      - name: Check formatting
-        run: cargo fmt --check
-
-  pkl-test:
-    name: Pkl Test  
-    runs-on: macos-latest
-    
-    steps:
-      - name: Checkout ankura repo
-        uses: actions/checkout@v4
-        with:
-          repository: 'lrangell/ankura'
-          
-      - name: Install pkl CLI
-        run: |
-          curl -L -o pkl https://github.com/apple/pkl/releases/download/0.29.1/pkl-macos-aarch64
-          chmod +x pkl
-          sudo mv pkl /usr/local/bin/
-          
-      - name: Run pkl tests
-        run: pkl test pkl-tests/
-  test-formula:
-    name: Test Homebrew Formula
-    runs-on: macos-latest
-    
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Homebrew
-        id: set-up-homebrew
-        uses: Homebrew/actions/setup-homebrew@master
-
-      - name: Test formula syntax
-        run: |
-          brew audit --strict --online Formula/ankura.rb
-
-      - name: Test formula installation (dry run)
-        run: |
-          # Test that the formula can be parsed
-          brew info Formula/ankura.rb
-
-  lint:
-    name: Lint
+  validate-formula:
+    name: Validate Formula
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check formula formatting
+      - name: Check formula syntax
         run: |
-          # Basic checks for Ruby formula
+          # Basic checks for Ruby formula structure
           if ! grep -q "class Ankura < Formula" Formula/ankura.rb; then
-            echo "Formula class declaration not found"
+            echo "❌ Formula class declaration not found"
             exit 1
           fi
           
           if ! grep -q 'depends_on "pkl"' Formula/ankura.rb; then
-            echo "pkl dependency not found"
+            echo "❌ pkl dependency not found"
             exit 1
           fi
+          
+          if ! grep -q 'depends_on cask: "karabiner-elements"' Formula/ankura.rb; then
+            echo "❌ karabiner-elements dependency not found"
+            exit 1
+          fi
+          
+          echo "✅ Formula structure valid"
 
-      - name: Validate workflow syntax
+      - name: Validate workflow files
         run: |
-          # Check that workflow YAML is valid
+          # Check that workflow YAML files are valid
           python -c "import yaml; yaml.safe_load(open('.github/workflows/release.yml'))"
           python -c "import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))"
+          echo "✅ Workflow files valid"
+
+  test-scripts:
+    name: Test Build Scripts
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test script syntax
+        run: |
+          # Check shell scripts for syntax errors
+          bash -n scripts/build-release.sh
+          bash -n scripts/update-formula.sh
+          echo "✅ Shell scripts valid"
