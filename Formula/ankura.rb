@@ -25,6 +25,9 @@ class Ankura < Formula
     # Create config directories
     (etc/"ankura").mkpath
     (var/"lib/ankura").mkpath
+    
+    # Initialize configuration
+    system "#{bin}/ankura", "init"
   end
 
   service do
@@ -41,17 +44,16 @@ class Ankura < Formula
 
   def caveats
     <<~EOS
-      To get started with Ankura:
+      Ankura has been installed and initialized!
+      
+      To get started:
         1. Install Karabiner-Elements:
            brew install --cask karabiner-elements
 
-        2. Initialize your configuration:
-           ankura init
-
-        3. Edit your configuration file:
+        2. Edit your configuration file:
            ~/.config/ankura.pkl
 
-        4. Start the daemon to watch for changes:
+        3. Start the daemon to watch for changes:
            ankura start
 
       For more information, visit: #{homepage}
