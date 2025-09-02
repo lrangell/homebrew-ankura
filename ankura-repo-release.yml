@@ -112,7 +112,7 @@ jobs:
 
             ### Homebrew (Recommended)
             ```bash
-            brew install lrangell/ankura
+            brew install lrangell/ankura/ankura
             ```
 
             ### Manual Installation

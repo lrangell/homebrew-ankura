@@ -13,7 +13,6 @@ class Ankura < Formula
   end
 
   depends_on "pkl"
-  depends_on cask: "karabiner-elements"
 
   def install
     bin.install "ankura"
@@ -43,13 +42,16 @@ class Ankura < Formula
   def caveats
     <<~EOS
       To get started with Ankura:
-        1. Initialize your configuration:
+        1. Install Karabiner-Elements:
+           brew install --cask karabiner-elements
+
+        2. Initialize your configuration:
            ankura init
 
-        2. Edit your configuration file:
+        3. Edit your configuration file:
            ~/.config/ankura.pkl
 
-        3. Start the daemon to watch for changes:
+        4. Start the daemon to watch for changes:
            ankura start
 
       For more information, visit: #{homepage}

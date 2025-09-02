@@ -7,7 +7,7 @@ Homebrew tap for distributing [Ankura](https://github.com/lrangell/ankura), a ty
 ### Direct Install (No Tapping Required)
 
 ```bash
-brew install lrangell/ankura
+brew install lrangell/ankura/ankura
 ```
 
 **That's it!** Homebrew automatically handles the tap behind the scenes.
@@ -34,7 +34,7 @@ ankura logs
 
 - macOS 10.15+ (Catalina or later)
 - [pkl](https://pkl-lang.org) CLI (automatically installed as dependency)
-- [Karabiner-Elements](https://karabiner-elements.pqrs.org/) (automatically installed as dependency)
+- [Karabiner-Elements](https://karabiner-elements.pqrs.org/) (install separately: `brew install --cask karabiner-elements`)
 
 ## Architecture Support
 
