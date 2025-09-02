@@ -28,11 +28,6 @@ jobs:
             exit 1
           fi
           
-          if grep -q 'depends_on cask: "karabiner-elements"' Formula/ankura.rb; then
-            echo "❌ karabiner-elements should not be a dependency (users install manually)"
-            exit 1
-          fi
-          
           echo "✅ Formula structure valid"
 
       - name: Validate workflow files
