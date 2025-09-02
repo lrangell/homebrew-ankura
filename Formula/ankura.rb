@@ -25,6 +25,7 @@ class Ankura < Formula
     # Create config directories
     (etc/"ankura").mkpath
     (var/"lib/ankura").mkpath
+    (share/"ankura").mkpath
     
     # Initialize configuration
     system "#{bin}/ankura", "init"
@@ -53,8 +54,13 @@ class Ankura < Formula
         2. Edit your configuration file:
            ~/.config/ankura.pkl
 
-        3. Start the daemon to watch for changes:
-           ankura start
+        3. Start the daemon:
+           brew services start ankura
+           # Or manually: ankura start
+
+        4. View logs:
+           brew services info ankura
+           # Or manually: ankura logs
 
       For more information, visit: #{homepage}
     EOS
