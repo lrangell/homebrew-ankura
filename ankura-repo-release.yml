@@ -1,0 +1,136 @@
+# This file should be placed in the main ankura repo at: .github/workflows/release.yml
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  build-release:
+    name: Build Release Binaries
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Install pkl CLI
+        run: |
+          curl -L -o pkl https://github.com/apple/pkl/releases/download/0.29.1/pkl-macos-aarch64
+          chmod +x pkl
+          sudo mv pkl /usr/local/bin/
+
+      - name: Run tests
+        run: |
+          cargo test
+          pkl test pkl-tests/
+
+      - name: Build release binary
+        run: |
+          cargo build --release --target ${{ matrix.target }}
+          strip target/${{ matrix.target }}/release/ankura
+
+      - name: Create release archive
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar -czf ankura-${{ github.ref_name }}-${{ matrix.target }}.tar.gz ankura
+          shasum -a 256 ankura-${{ github.ref_name }}-${{ matrix.target }}.tar.gz > ankura-${{ github.ref_name }}-${{ matrix.target }}.sha256
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ankura-${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/ankura-${{ github.ref_name }}-${{ matrix.target }}.tar.gz
+            target/${{ matrix.target }}/release/ankura-${{ github.ref_name }}-${{ matrix.target }}.sha256
+
+  create-release:
+    name: Create GitHub Release
+    needs: build-release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_no_v=${VERSION#v}" >> $GITHUB_OUTPUT
+
+      - name: Get checksums
+        id: checksums
+        run: |
+          X86_CHECKSUM=$(cat artifacts/ankura-x86_64-apple-darwin/ankura-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.sha256 | cut -d' ' -f1)
+          ARM_CHECKSUM=$(cat artifacts/ankura-aarch64-apple-darwin/ankura-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.sha256 | cut -d' ' -f1)
+          
+          echo "x86_checksum=${X86_CHECKSUM}" >> $GITHUB_OUTPUT
+          echo "arm_checksum=${ARM_CHECKSUM}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/ankura-x86_64-apple-darwin/ankura-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.tar.gz
+            artifacts/ankura-aarch64-apple-darwin/ankura-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.tar.gz
+            artifacts/ankura-x86_64-apple-darwin/ankura-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.sha256
+            artifacts/ankura-aarch64-apple-darwin/ankura-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.sha256
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            ### Homebrew (Recommended)
+            ```bash
+            brew install lrangell/ankura
+            ```
+
+            ### Manual Installation
+            Download the appropriate binary for your system:
+            - **Intel Mac**: ankura-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.tar.gz
+            - **Apple Silicon**: ankura-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.tar.gz
+
+            ### Checksums
+            - **x86_64**: `${{ steps.checksums.outputs.x86_checksum }}`
+            - **aarch64**: `${{ steps.checksums.outputs.arm_checksum }}`
+            
+            ---
+            
+            After creating this release, update the Homebrew formula with:
+            ```bash
+            # Go to https://github.com/lrangell/homebrew-ankura/actions
+            # Run "Update Formula" workflow with:
+            # - Version: ${{ steps.get_version.outputs.version }}
+            # - x86_64 checksum: ${{ steps.checksums.outputs.x86_checksum }}
+            # - ARM64 checksum: ${{ steps.checksums.outputs.arm_checksum }}
+            ```

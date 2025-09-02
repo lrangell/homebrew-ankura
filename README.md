@@ -51,19 +51,28 @@ This repository contains:
 
 ### Release Process
 
-Releases are automatically triggered by git tags:
-
+**Step 1: Create Release (Main Ankura Repo)**
 ```bash
-# Create and push a new tag
+# In the main ankura repository
 git tag v0.2.1
 git push origin v0.2.1
 ```
 
-The GitHub Actions workflow will:
-1. Cross-compile binaries for both architectures
-2. Create a GitHub release with binaries
-3. Update the Homebrew formula with new checksums
-4. Commit the updated formula
+This triggers the release workflow in the main repo which:
+1. Runs cargo test and pkl test
+2. Cross-compiles binaries for both architectures  
+3. Creates a GitHub release with binaries and checksums
+
+**Step 2: Update Homebrew Formula (This Repo)**
+1. Go to [Actions → Update Formula](https://github.com/lrangell/homebrew-ankura/actions)
+2. Click "Run workflow" and enter:
+   - Version: `v0.2.1`
+   - x86_64 checksum: `(from release notes)`
+   - ARM64 checksum: `(from release notes)`
+3. The workflow updates the formula and commits changes
+
+**Files to Copy to Main Ankura Repo:**
+- Copy `ankura-repo-release.yml` → `lrangell/ankura/.github/workflows/release.yml`
 
 ### Manual Build
 
