@@ -34,7 +34,7 @@ ankura logs
 
 - macOS 10.15+ (Catalina or later)
 - [pkl](https://pkl-lang.org) CLI (automatically installed as dependency)
-- [Karabiner-Elements](https://karabiner-elements.pqrs.org/) (install separately)
+- [Karabiner-Elements](https://karabiner-elements.pqrs.org/) (automatically installed as dependency)
 
 ## Architecture Support
 

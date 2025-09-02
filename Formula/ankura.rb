@@ -13,6 +13,7 @@ class Ankura < Formula
   end
 
   depends_on "pkl"
+  depends_on cask: "karabiner-elements"
 
   def install
     bin.install "ankura"
