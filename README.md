@@ -39,8 +39,7 @@ ankura logs
 ## Architecture Support
 
 This tap provides pre-compiled binaries for:
-- Intel Macs (`x86_64-apple-darwin`)
-- Apple Silicon Macs (`aarch64-apple-darwin`)
+- Apple Silicon Macs only (`aarch64-apple-darwin`)
 
 ## Development
 
@@ -68,14 +67,10 @@ git push origin v0.2.1
 ```
 
 This triggers the release workflow which:
-1. ✅ Runs cargo test and pkl test
-2. ✅ Cross-compiles binaries for both architectures
-3. ✅ Creates GitHub release with binaries and checksums
-
-**Step 3: Update Homebrew Formula (This Repo)**
-1. Go to [Actions → Update Formula](https://github.com/lrangell/homebrew-ankura/actions)
-2. Click "Run workflow" and enter the version + checksums from the release notes
-3. Formula gets updated automatically
+1. ✅ Runs cargo fmt, clippy, and check
+2. ✅ Builds release binary for Apple Silicon
+3. ✅ Creates GitHub release with binary and checksum
+4. ✅ Automatically updates the Homebrew formula
 
 **Repository Responsibilities:**
 - **Main Repo**: Code testing, building, releasing binaries
