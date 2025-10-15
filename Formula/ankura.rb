@@ -1,11 +1,11 @@
 class Ankura < Formula
   desc "Type-safe Karabiner-Elements configuration using Apple's Pkl language"
   homepage "https://github.com/lrangell/ankura"
-  version "0.3.5"
+  version "0.3.6"
   license "MIT"
 
   url "https://github.com/lrangell/ankura/releases/download/v#{version}/ankura-v#{version}-aarch64-apple-darwin.tar.gz"
-  sha256 "88eda2095b99738f33172504113c6320b159b1a9639d549fca00caff8e2788d3"
+  sha256 "102e497000f5fd395b764dff8e2a34656f57d6939d2c670704ecd5c223e488df"
 
   depends_on :macos
   depends_on arch: :arm64
