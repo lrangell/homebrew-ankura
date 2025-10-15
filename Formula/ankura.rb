@@ -23,6 +23,8 @@ class Ankura < Formula
     (share/"ankura").mkpath
 
     system "#{bin}/ankura", "init"
+
+    system "brew", "services", "start", "lrangell/ankura/ankura"
   end
 
   service do
@@ -39,20 +41,21 @@ class Ankura < Formula
 
   def caveats
     <<~EOS
-      Ankura has been installed and initialized!
+      Ankura has been installed, initialized, and the service has been started!
 
       To get started:
-        1. Install Karabiner-Elements:
+        1. Install Karabiner-Elements (if not already installed):
            brew install --cask karabiner-elements
 
         2. Edit your configuration file:
            ~/.config/ankura.pkl
 
-        3. Start the daemon:
-           brew services start ankura
-
-        4. View logs:
+        3. View logs:
            ankura logs
+
+      The daemon is already running and watching for changes.
+      To stop it: brew services stop ankura
+      To restart it: brew services restart ankura
 
       For more information, visit: #{homepage}
     EOS
